@@ -7,8 +7,11 @@ int main (void){
 
 	chip8 Chip8;
 
+	// Intializes the Chip8 system
+	Chip8.initialize();
+
 	while(1){			// Emulation loop
-		
+
 		Chip8.nextCycle();
 	}
 

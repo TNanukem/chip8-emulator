@@ -1,6 +1,28 @@
 #include "chip8.h"
 // Chip-8 Class Methods Definition
 
+void chip8::initialize(){
+
+	// Clears the memory of the system
+	for(int i = 0; i < 4096; i++){
+		this->memory[i] = 0;
+	}
+
+	// Clears all registers and the stack
+	for(int i = 0; i < 16; i++){
+		this->v[i] = 0;
+		this->stack[i] = 0;
+	}
+
+	this->opcode = 0;
+	this->pc = 0x200;
+	this->sp = 0;
+	this->I = 0;
+
+	this->soundTimer = 0;
+	this->delayTimer = 0;
+}
+
 void chip8::nextCycle(){
 
 	// Fetching the instruction
@@ -29,7 +51,7 @@ void chip8::nextCycle(){
 
 		// Skips the next instruction if v[X] is equal to NN
 		case 0x3000:
-			if(v[opcode & GET_X] == (opcode & GET_8BIT_CONSTANT)){
+			if(v[(opcode & GET_X) >> 8] == (opcode & GET_8BIT_CONSTANT)){
 					this->pc += 4;
 			}
 			else this->pc += 2;
@@ -37,7 +59,7 @@ void chip8::nextCycle(){
 
 		// Skips the next instruction if v[X] is not equal to NN
 		case 0x4000:
-			if(v[opcode & GET_X] != (opcode & GET_8BIT_CONSTANT)){
+			if(v[(opcode & GET_X) >> 8] != (opcode & GET_8BIT_CONSTANT)){
 					this->pc += 4;
 			}
 			else this->pc += 2;
@@ -45,21 +67,22 @@ void chip8::nextCycle(){
 
 		// Skips the next instruction if v[X] is equal to v[Y]
 		case 0x5000:
-			if(v[opcode & GET_X] == v[opcode & GET_Y]){
+			if(v[(opcode & GET_X) >> 8] == v[(opcode & GET_Y) >> 4]){
 				this->pc += 4;
 			}
-			else this->pc += 2;
+			else
+				this->pc += 2;
 			break;
 
 		// Sets v[X] to NN
 		case 0x6000:
-			v[opcode & GET_X] = (opcode & GET_8BIT_CONSTANT);
+			v[(opcode & GET_X) >> 8] = (opcode & GET_8BIT_CONSTANT);
 			this->pc += 2;
 			break;
 
 		// Adds NN to v[X]
 		case 0x7000:
-			v[opcode & GET_X] += (opcode & GET_8BIT_CONSTANT);
+			v[(opcode & GET_X) >> 8]  += (opcode & GET_8BIT_CONSTANT);
 			this->pc += 2;
 			break;
 
@@ -139,4 +162,11 @@ void chip8::nextCycle(){
 			this->pc += 2;
 			break;
 	}
+
+	// Decrement the timers if they are greater than zero
+	if(this->delayTimer > 0)
+		this->delayTimer--;
+
+	if(this->soundTimer > 0)
+		this->soundTimer--;
 }

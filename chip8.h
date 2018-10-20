@@ -22,6 +22,8 @@ class chip8{
 
 	unsigned char keyboard[16];		// The keyboard has 16 keys
 
-	void nextCycle();
-};
+	bool	drawFlag;				// Flag to determine if we should draw on the screen or not.
 
+	void nextCycle();
+	void initialize();
+};
