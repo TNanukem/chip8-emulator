@@ -23,6 +23,34 @@ void chip8::initialize(){
 	this->delayTimer = 0;
 }
 
+bool chip8::loadGame(char *game){
+	FILE *gameP = fopen(game, "rb");
+	if(gameP == NULL){
+		return false;
+	}
+
+	// Finds the size of the game
+	fseek(gameP, 0, SEEK_END);
+	long int gameSize = ftell(gameP);
+	fseek(gameP, 0, SEEK_SET);
+
+	// Reads the data from the game into the buffer
+	char *buffer = (char*) malloc(sizeof(char)*gameSize);
+	if(buffer == NULL){
+		return false;
+	}
+	fread(buffer, 1, gameSize, gameP);
+
+	// Writes the data on the memory
+	for(int i = 0; i < gameSize; i++){
+		this->memory[i + 512] = buffer[i];
+	}
+
+	fclose(gameP);
+	free(buffer);
+
+}
+
 void chip8::nextCycle(){
 
 	// Fetching the instruction
@@ -43,6 +71,7 @@ void chip8::nextCycle(){
 
 					break;
 			}
+			break;
 
 		// Jumps to the address NNN
 		case 0x1000:
@@ -88,7 +117,7 @@ void chip8::nextCycle(){
 
 		// Skips the next instruction if v[X] is not equal to v[Y]
 		case 0x9000:
-			if(v[opcode & GET_X] != v[opcode & GET_Y]){
+			if(v[opcode & GET_X >> 8] != v[(opcode & GET_Y) >> 4]){
 				this->pc += 4;
 			}
 			else this->pc += 2;
@@ -99,22 +128,26 @@ void chip8::nextCycle(){
 
 				// Sets v[X] to v[Y]
 				case 0x0000:
-					v[opcode & GET_X] = v[opcode & GET_Y];
+					v[(opcode & GET_X) >> 8] = v[(opcode & GET_Y) >> 4];
+					this->pc += 2;
 					break;
 
 				// Sets v[X] to v[X] OR v[Y]
 				case 0x0001:
-					v[opcode & GET_X] = v[opcode & GET_X] | v[opcode & GET_Y];
+					v[(opcode & GET_X) >> 8] |= v[(opcode & GET_Y) >> 4];
+					this->pc += 2;
 					break;
 
 				// Sets v[X] to v[X] AND v[Y]
 				case 0x0002:
-					v[opcode & GET_X] = v[opcode & GET_X] & v[opcode & GET_Y];
+					v[(opcode & GET_X) >> 8] &= v[(opcode & GET_Y) >> 4];
+					this->pc += 2;
 					break;
 
 				// Sets v[X] to v[X] XOR v[Y]
 				case 0x0003:
-
+					v[(opcode & GET_X) >> 8] ^= v[(opcode & GET_Y) >> 4];
+					this->pc += 2;
 					break;
 
 				case 0x0004:
@@ -137,6 +170,7 @@ void chip8::nextCycle(){
 
 					break;
 			}
+			break;
 
 		// Sets the I address to NNN
 		case 0xA000:
@@ -161,6 +195,29 @@ void chip8::nextCycle(){
 			//draw(v[opcode & GET_X],v[opcode & GET_Y], (opcode & GET_4BIT_CONSTANT));
 			this->pc += 2;
 			break;
+
+		case 0xF000:
+			switch(opcode & GET_8BIT_CONSTANT){
+
+				// Sets the delay timer to the value of v[X]
+				case 0x0015:
+					this->delayTimer = v[(opcode & GET_X) >> 8];
+					this->pc += 2;
+					break;
+
+				// Sets the sound timer to the value of v[X]
+				case 0x0018:
+					this->soundTimer = v[(opcode & GET_X) >> 8];
+					this->pc += 2;
+					break;
+
+				// Adds v[X] to I
+				case 0x001E:
+					this->I += v[(opcode & GET_X) >> 8];
+					this->pc += 2;
+					break;
+
+			}
 	}
 
 	// Decrement the timers if they are greater than zero

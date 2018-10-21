@@ -1,4 +1,7 @@
 #include "masks_chip8.h"
+#include <time.h>
+#include <iostream>
+
 // CHIP-8 Simulator .h file
 // Tiago Toledo Junior
 
@@ -26,4 +29,5 @@ class chip8{
 
 	void nextCycle();
 	void initialize();
+	bool loadGame(char *game);
 };

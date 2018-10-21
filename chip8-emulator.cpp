@@ -7,8 +7,9 @@ int main (void){
 
 	chip8 Chip8;
 
-	// Intializes the Chip8 system
+	// Intializes the Chip8 system and loads the game into memory
 	Chip8.initialize();
+	Chip8.loadGame("pong.c8");
 
 	while(1){			// Emulation loop
 
