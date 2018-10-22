@@ -21,6 +21,8 @@ void chip8::initialize(){
 
 	this->soundTimer = 0;
 	this->delayTimer = 0;
+
+	this->drawFlag = 1;
 }
 
 bool chip8::loadGame(char *game){
@@ -232,8 +234,36 @@ void chip8::nextCycle(){
 			this->pc += 2;
 			break;
 
+		case 0xE000:
+			switch(opcode & GET_4BIT_CONSTANT){
+
+				// Skips the next instruction if the key stored in VX is pressed.
+				case 0x000E:
+					if(this->keyboard[v[(opcode & GET_X) >> 8]] != 0)
+						this->pc += 4;
+					else
+						this->pc += 2;
+					break;
+
+				// Skips the next instruction if the key stored in VX isn't pressed.
+				case 0x0001:
+					if(this->keyboard[v[(opcode & GET_X) >> 8]] == 0)
+						this->pc += 4;
+					else
+						this->pc += 2;
+					break;
+			}
+
+			break;
+
 		case 0xF000:
 			switch(opcode & GET_8BIT_CONSTANT){
+
+				// Sets VX to the value of the delay timer.
+				case 0x0007:
+					v[(opcode & GET_X) >> 8] = this->delayTimer;
+					this->pc += 2;
+					break;
 
 				// Sets the delay timer to the value of v[X]
 				case 0x0015:
