@@ -61,13 +61,18 @@ void chip8::nextCycle(){
 
 		// Decodification of the 0x0 opcodes
 		case 0x0000:
-			switch(opcode & GET_4BIT_CONSTANT){
+			switch(opcode & GET_8BIT_CONSTANT){
 
-				case 0x0000:
+				case 0x00E0:
 
 					break;
 
-				case 0x000E:
+				case 0x00EE:
+					this->sp--;
+					this->pc = this->stack[this->sp];
+					break;
+
+				default:
 
 					break;
 			}
@@ -76,6 +81,12 @@ void chip8::nextCycle(){
 		// Jumps to the address NNN
 		case 0x1000:
 			this->pc = (opcode & GET_ADDRESS);
+			break;
+
+		case 0x2000:
+			this->stack[this->sp] = pc;
+			this->sp++;
+			pc = opcode & GET_ADDRESS;
 			break;
 
 		// Skips the next instruction if v[X] is equal to NN
@@ -150,24 +161,49 @@ void chip8::nextCycle(){
 					this->pc += 2;
 					break;
 
+				// Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
 				case 0x0004:
+					if(v[(opcode & GET_X) >> 8] > 0xFF - v[(opcode & GET_Y) >> 4])
+						v[0xF] = 1;
+					else
+						v[0xF] = 0;
+					v[(opcode & GET_X) >> 8] += v[(opcode & GET_Y) >> 4];
+					this->pc += 2;
 
 					break;
 
+				// VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
 				case 0x0005:
-
+					if(v[(opcode & GET_Y) >> 4] > v[(opcode & GET_X) >> 8])
+						v[0xF] = 0;
+					else
+						v[0xF] = 1;
+					v[(opcode & GET_X) >> 8] -= v[(opcode & GET_Y) >> 4];
+					this->pc += 2;
 					break;
 
+				// Stores the least significant bit of VX in VF and then shifts VX to the right by 1.
 				case 0x0006:
-
+					v[0xF] = v[(opcode & GET_X) >> 8] >> 7;
+					v[(opcode & GET_X) >> 8] >> 1;
+					this->pc += 2;
 					break;
 
+				// Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
 				case 0x0007:
-
+					if(v[(opcode & GET_X) >> 8] > v[(opcode & GET_Y) >> 4])
+						v[0xF] = 0;
+					else
+						v[0xF] = 1;
+					v[(opcode & GET_X) >> 8] = v[(opcode & GET_Y) >> 4] - v[(opcode & GET_X) >> 8];
+					this->pc += 2;
 					break;
 
+				// Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
 				case 0x000E:
-
+					v[0xF] = v[(opcode & GET_X) >> 8] >> 7;
+					v[(opcode & GET_X) >> 8] << 1;
+					this->pc += 2;
 					break;
 			}
 			break;
@@ -186,7 +222,7 @@ void chip8::nextCycle(){
 
 		// Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and NN.
 		case 0xC000:
-			//v[opcode & GET_X] = rand() & (opcode & GET_8BIT_CONSTANT);
+			v[opcode & GET_X] = (rand() % 256) & (opcode & GET_8BIT_CONSTANT);
 			this->pc += 2;
 			break;
 
