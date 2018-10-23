@@ -1,6 +1,25 @@
 #include "chip8.h"
 // Chip-8 Class Methods Definition
 
+unsigned char chip8_fontset[80] = {
+  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+  0x20, 0x60, 0x20, 0x20, 0x70, // 1
+  0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+  0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+  0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+  0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+  0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+  0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+  0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+  0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+  0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+  0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+  0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+  0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+  0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+  0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+};
+
 void chip8::initialize(){
 
 	// Clears the memory of the system
@@ -14,6 +33,16 @@ void chip8::initialize(){
 		this->stack[i] = 0;
 	}
 
+	// Clears the display
+	for(int i = 0; i < 2048; i++){
+		this->display[i] = 0;
+	}
+
+	// Uploads the fontset to the Memory
+	for(int i = 0; i < 80; i++){
+		this->memory[i] = chip8_fontset[i];
+	}
+
 	this->opcode = 0;
 	this->pc = 0x200;
 	this->sp = 0;
@@ -23,6 +52,8 @@ void chip8::initialize(){
 	this->delayTimer = 0;
 
 	this->drawFlag = 1;
+
+	srand(TIME(NULL));
 }
 
 bool chip8::loadGame(char *game){
@@ -65,17 +96,19 @@ void chip8::nextCycle(){
 		case 0x0000:
 			switch(opcode & GET_8BIT_CONSTANT){
 
+				// Clears the screen.
 				case 0x00E0:
-
+					for(int i = 0; i < 2048; i++){
+						this->display[i] = 0;
+					}
+					pc += 2;
+					this->drawFlag = 1;
 					break;
 
+				// Returns from a subroutine.
 				case 0x00EE:
 					this->sp--;
 					this->pc = this->stack[this->sp];
-					break;
-
-				default:
-
 					break;
 			}
 			break;
@@ -265,6 +298,19 @@ void chip8::nextCycle(){
 					this->pc += 2;
 					break;
 
+				case 0x000A:
+					bool pressedKey = false;
+					for(int i = 0; i < 16; i++){
+						if(this->keyboard[i] != 0){
+							v[(opcode & GET_X) >> 8] = i;
+							pressedKey = true;
+						}
+						if(!pressedKey)
+							return
+
+						this->pc += 2;
+					}
+
 				// Sets the delay timer to the value of v[X]
 				case 0x0015:
 					this->delayTimer = v[(opcode & GET_X) >> 8];
@@ -280,6 +326,37 @@ void chip8::nextCycle(){
 				// Adds v[X] to I
 				case 0x001E:
 					this->I += v[(opcode & GET_X) >> 8];
+					this->pc += 2;
+					break;
+
+				// Sets I to the location of the sprite for the character in VX.
+				case 0x0029:
+					this->I = v[(opcode & GET_X) >> 8] * 0x5;
+					this->pc += 2;
+					break;
+
+				// Stores the Binary-coded decimal representation of VX at the addresses I, I plus 1, and I plus 2
+				// Implementation by TJA
+				case 0x0033:
+						this->memory[I]     = V[(opcode & 0x0F00) >> 8] / 100;
+						this->memory[I + 1] = (V[(opcode & 0x0F00) >> 8] / 10) % 10;
+						this->memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
+						this->pc += 2;
+					break;
+
+				//Stores V0 to VX (including VX) in memory starting at address I.
+				case 0x0055:
+					for(int i = 0; i <= v[(opcode & GET_X) >> 8]; i++){
+						this->memory[I+i] = v[i];
+					}
+					this->pc += 2;
+					break;
+
+				// Fills V0 to VX (including VX) with values from memory starting at address I.
+				case 0x0065:
+					for(int i = 0; i <= v[(opcode & GET_X) >> 8]; i++){
+						v[i] = this->memory[I+i];
+					}
 					this->pc += 2;
 					break;
 
