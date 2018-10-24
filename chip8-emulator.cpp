@@ -14,6 +14,11 @@ int main (void){
 	while(1){			// Emulation loop
 
 		Chip8.nextCycle();
+
+		if(Chip8.drawFlag){
+			// Draw graphics
+		}
+
 	}
 
 	return 0;

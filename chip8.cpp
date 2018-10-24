@@ -118,6 +118,7 @@ void chip8::nextCycle(){
 			this->pc = (opcode & GET_ADDRESS);
 			break;
 
+        // Calls subroutine at NNN.
 		case 0x2000:
 			this->stack[this->sp] = pc;
 			this->sp++;
@@ -298,6 +299,7 @@ void chip8::nextCycle(){
 					this->pc += 2;
 					break;
 
+                // A key press is awaited, and then stored in VX
 				case 0x000A:
 					bool pressedKey = false;
 					for(int i = 0; i < 16; i++){
