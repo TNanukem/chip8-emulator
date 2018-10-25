@@ -53,12 +53,13 @@ void chip8::initialize(){
 
 	this->drawFlag = 1;
 
-	srand(TIME(NULL));
 }
 
 bool chip8::loadGame(char *game){
+    printf("Loading the game....\n");
 	FILE *gameP = fopen(game, "rb");
 	if(gameP == NULL){
+        printf("ERROR! Game file not found!\n");
 		return false;
 	}
 
@@ -77,6 +78,7 @@ bool chip8::loadGame(char *game){
 	// Writes the data on the memory
 	for(int i = 0; i < gameSize; i++){
 		this->memory[i + 512] = buffer[i];
+        printf("Memory[%d] = %d\n", i+512,memory[i+512]);
 	}
 
 	fclose(gameP);
@@ -101,7 +103,7 @@ void chip8::nextCycle(){
 					for(int i = 0; i < 2048; i++){
 						this->display[i] = 0;
 					}
-					pc += 2;
+					this->pc += 2;
 					this->drawFlag = 1;
 					break;
 
@@ -308,10 +310,10 @@ void chip8::nextCycle(){
 							pressedKey = true;
 						}
 						if(!pressedKey)
-							return
+							//return
 
 						this->pc += 2;
-					}
+                        break;
 
 				// Sets the delay timer to the value of v[X]
 				case 0x0015:
