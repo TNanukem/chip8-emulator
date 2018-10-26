@@ -1,6 +1,8 @@
 #include "chip8.h"
 // Chip-8 Class Methods Definition
 
+bool pressedKey = false;
+
 unsigned char chip8_fontset[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
   0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -303,15 +305,14 @@ void chip8::nextCycle(){
 
                 // A key press is awaited, and then stored in VX
 				case 0x000A:
-					bool pressedKey = false;
+					pressedKey = false;
 					for(int i = 0; i < 16; i++){
 						if(this->keyboard[i] != 0){
 							v[(opcode & GET_X) >> 8] = i;
 							pressedKey = true;
 						}
-						if(!pressedKey)
-							//return
-
+						if(!pressedKey){}//return
+                    }
 						this->pc += 2;
                         break;
 
@@ -342,9 +343,9 @@ void chip8::nextCycle(){
 				// Stores the Binary-coded decimal representation of VX at the addresses I, I plus 1, and I plus 2
 				// Implementation by TJA
 				case 0x0033:
-						this->memory[I]     = V[(opcode & 0x0F00) >> 8] / 100;
-						this->memory[I + 1] = (V[(opcode & 0x0F00) >> 8] / 10) % 10;
-						this->memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
+						this->memory[I]     = v[(opcode & 0x0F00) >> 8] / 100;
+						this->memory[I + 1] = (v[(opcode & 0x0F00) >> 8] / 10) % 10;
+						this->memory[I + 2] = (v[(opcode & 0x0F00) >> 8] % 100) % 10;
 						this->pc += 2;
 					break;
 
