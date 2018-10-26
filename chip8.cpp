@@ -107,12 +107,14 @@ void chip8::nextCycle(){
 					}
 					this->pc += 2;
 					this->drawFlag = 1;
+                    printf("CLS\n");
 					break;
 
 				// Returns from a subroutine.
 				case 0x00EE:
 					this->sp--;
 					this->pc = this->stack[this->sp];
+                    printf("RET\n");
 					break;
 			}
 			break;
@@ -120,6 +122,7 @@ void chip8::nextCycle(){
 		// Jumps to the address NNN
 		case 0x1000:
 			this->pc = (opcode & GET_ADDRESS);
+            printf("JMP %d\n", opcode & GET_ADDRESS);
 			break;
 
         // Calls subroutine at NNN.
@@ -127,6 +130,7 @@ void chip8::nextCycle(){
 			this->stack[this->sp] = pc;
 			this->sp++;
 			pc = opcode & GET_ADDRESS;
+            printf("CALL %d\n", opcode & GET_ADDRESS);
 			break;
 
 		// Skips the next instruction if v[X] is equal to NN
@@ -135,6 +139,7 @@ void chip8::nextCycle(){
 					this->pc += 4;
 			}
 			else this->pc += 2;
+            printf("SE V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Skips the next instruction if v[X] is not equal to NN
@@ -143,6 +148,7 @@ void chip8::nextCycle(){
 					this->pc += 4;
 			}
 			else this->pc += 2;
+            printf("SNE V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Skips the next instruction if v[X] is equal to v[Y]
@@ -152,18 +158,22 @@ void chip8::nextCycle(){
 			}
 			else
 				this->pc += 2;
+
+            printf("SE V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 			break;
 
 		// Sets v[X] to NN
 		case 0x6000:
 			v[(opcode & GET_X) >> 8] = (opcode & GET_8BIT_CONSTANT);
 			this->pc += 2;
+            printf("LD V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Adds NN to v[X]
 		case 0x7000:
 			v[(opcode & GET_X) >> 8]  += (opcode & GET_8BIT_CONSTANT);
 			this->pc += 2;
+            printf("ADD V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Skips the next instruction if v[X] is not equal to v[Y]
@@ -172,6 +182,7 @@ void chip8::nextCycle(){
 				this->pc += 4;
 			}
 			else this->pc += 2;
+            printf("SNE V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 			break;
 
 		case 0x8000:
@@ -181,24 +192,28 @@ void chip8::nextCycle(){
 				case 0x0000:
 					v[(opcode & GET_X) >> 8] = v[(opcode & GET_Y) >> 4];
 					this->pc += 2;
+                    printf("LD V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Sets v[X] to v[X] OR v[Y]
 				case 0x0001:
 					v[(opcode & GET_X) >> 8] |= v[(opcode & GET_Y) >> 4];
 					this->pc += 2;
+                    printf("OR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Sets v[X] to v[X] AND v[Y]
 				case 0x0002:
 					v[(opcode & GET_X) >> 8] &= v[(opcode & GET_Y) >> 4];
 					this->pc += 2;
+                    printf("AND V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Sets v[X] to v[X] XOR v[Y]
 				case 0x0003:
 					v[(opcode & GET_X) >> 8] ^= v[(opcode & GET_Y) >> 4];
 					this->pc += 2;
+                    printf("XOR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
@@ -209,7 +224,7 @@ void chip8::nextCycle(){
 						v[0xF] = 0;
 					v[(opcode & GET_X) >> 8] += v[(opcode & GET_Y) >> 4];
 					this->pc += 2;
-
+                    printf("ADD V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
@@ -220,6 +235,7 @@ void chip8::nextCycle(){
 						v[0xF] = 1;
 					v[(opcode & GET_X) >> 8] -= v[(opcode & GET_Y) >> 4];
 					this->pc += 2;
+                    printf("SUB V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Stores the least significant bit of VX in VF and then shifts VX to the right by 1.
@@ -237,6 +253,7 @@ void chip8::nextCycle(){
 						v[0xF] = 1;
 					v[(opcode & GET_X) >> 8] = v[(opcode & GET_Y) >> 4] - v[(opcode & GET_X) >> 8];
 					this->pc += 2;
+                    printf("SUBN V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
@@ -252,24 +269,28 @@ void chip8::nextCycle(){
 		case 0xA000:
 			this->I = opcode & GET_ADDRESS;
 			this->pc += 2;
+            printf("LD I, %d\n", opcode & GET_ADDRESS);
 			break;
 
 		// Jumps to the address V0 + NNN
 		case 0xB000:
 			this->pc = (opcode & GET_ADDRESS) + this->v[0];
 			this->pc += 2;
+            printf("JP V0,%d\n", opcode & GET_ADDRESS);
 			break;
 
 		// Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and NN.
 		case 0xC000:
-			v[opcode & GET_X] = (rand() % 256) & (opcode & GET_8BIT_CONSTANT);
+			v[opcode & GET_X >> 8] = (rand() % 256) & (opcode & GET_8BIT_CONSTANT);
 			this->pc += 2;
+            printf("RND V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Draws a sprite at (vx,vy) with size height of N pixels
 		case 0xD000:
 			//draw(v[opcode & GET_X],v[opcode & GET_Y], (opcode & GET_4BIT_CONSTANT));
 			this->pc += 2;
+            printf("DRW V%d,V%d,%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4, opcode & GET_4BIT_CONSTANT);
 			break;
 
 		case 0xE000:
@@ -364,8 +385,11 @@ void chip8::nextCycle(){
 					}
 					this->pc += 2;
 					break;
-
 			}
+
+            default:
+                printf("ERROR! Opcode not known!\n");
+                break;
 	}
 
 	// Decrement the timers if they are greater than zero
