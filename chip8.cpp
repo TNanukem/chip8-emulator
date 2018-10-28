@@ -2,6 +2,7 @@
 // Chip-8 Class Methods Definition
 
 bool pressedKey = false;
+unsigned short pixel, xaux, yaux;
 
 unsigned char chip8_fontset[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -288,7 +289,23 @@ void chip8::nextCycle(){
 
 		// Draws a sprite at (vx,vy) with size height of N pixels
 		case 0xD000:
-			//draw(v[opcode & GET_X],v[opcode & GET_Y], (opcode & GET_4BIT_CONSTANT));
+            xaux = (opcode & GET_X) >> 8;
+            yaux = (opcode & GET_Y) >> 4;
+            v[0xF] = 0;         // Resets the VF
+
+            for(int y = 0; y < yaux; y++){              // Passes through all lines of the sprite
+                pixel = this->memory[this->I + y];      // Fetches the pixel value on the memory
+                for(int x = 0; x < 8; x++){             // Passes through all 8 columns of the sprite, in each line
+                    if(pixel & (0x80 >> x) != 0){
+                        if(this->display[xaux + x + (yaux + y)*64] == 1){
+                            v[0xF] = 1;                 // Registers the collision
+                        }
+                        this->display[xaux + x + (yaux + y)*64] ^= 1;
+                    }
+                }
+            }
+
+            this->drawFlag = 1;
 			this->pc += 2;
             printf("DRW V%d,V%d,%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4, opcode & GET_4BIT_CONSTANT);
 			break;
