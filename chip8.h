@@ -1,6 +1,8 @@
 #include "masks_chip8.h"
 #include <time.h>
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 // CHIP-8 Simulator .h file
 // Tiago Toledo Junior

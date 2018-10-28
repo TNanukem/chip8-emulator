@@ -18,7 +18,7 @@ int main (void){
 		if(Chip8.drawFlag){
 			// Draw graphics
 		}
-
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 	}
 
 	return 0;
