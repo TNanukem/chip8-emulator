@@ -36,7 +36,13 @@ int main (void){
 
 	while(1){			// Emulation loop
 
-	SDL_Event event;
+		SDL_Event event;
+
+		// Event loop
+		while(SDL_PollEvent(&event)){
+			if(event.type == SDL_QUIT)		// Closes the window when the user clicks on the close button
+				return 0;
+		}
 
 		Chip8.nextCycle();
 
