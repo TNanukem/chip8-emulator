@@ -3,6 +3,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <SDL2/SDL.h>
 
 // CHIP-8 Simulator .h file
 // Tiago Toledo Junior
