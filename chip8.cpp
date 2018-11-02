@@ -245,6 +245,7 @@ void chip8::nextCycle(){
 					v[0xF] = v[(opcode & GET_X) >> 8] >> 7;
 					v[(opcode & GET_X) >> 8] >> 1;
 					this->pc += 2;
+                    printf("SHR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
@@ -263,6 +264,7 @@ void chip8::nextCycle(){
 					v[0xF] = v[(opcode & GET_X) >> 8] >> 7;
 					v[(opcode & GET_X) >> 8] << 1;
 					this->pc += 2;
+                    printf("SHL V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 			}
 			break;
@@ -316,6 +318,7 @@ void chip8::nextCycle(){
 
 				// Skips the next instruction if the key stored in VX is pressed.
 				case 0x000E:
+                    printf("SKP V%d\n", (opcode & GET_X) >> 8);
 					if(this->keyboard[v[(opcode & GET_X) >> 8]] != 0)
 						this->pc += 4;
 					else
@@ -324,6 +327,7 @@ void chip8::nextCycle(){
 
 				// Skips the next instruction if the key stored in VX isn't pressed.
 				case 0x0001:
+                    printf("SKNP V%d\n", (opcode & GET_X) >> 8);
 					if(this->keyboard[v[(opcode & GET_X) >> 8]] == 0)
 						this->pc += 4;
 					else
@@ -340,10 +344,12 @@ void chip8::nextCycle(){
 				case 0x0007:
 					v[(opcode & GET_X) >> 8] = this->delayTimer;
 					this->pc += 2;
+                    printf("LD V%d, DT\n", (opcode & GET_X) >> 8);
 					break;
 
                 // A key press is awaited, and then stored in VX
 				case 0x000A:
+                    printf("KEYWAIT V%d, K\n", (opcode & GET_X) >> 8);
 					pressedKey = false;
 					for(int i = 0; i < 16; i++){
 						if(this->keyboard[i] != 0){
@@ -357,24 +363,28 @@ void chip8::nextCycle(){
 
 				// Sets the delay timer to the value of v[X]
 				case 0x0015:
+                    printf("LD DT, V%d\n", (opcode & GET_X) >> 8);
 					this->delayTimer = v[(opcode & GET_X) >> 8];
 					this->pc += 2;
 					break;
 
 				// Sets the sound timer to the value of v[X]
 				case 0x0018:
+                    printf("LD ST, V%d\n", (opcode & GET_X) >> 8);
 					this->soundTimer = v[(opcode & GET_X) >> 8];
 					this->pc += 2;
 					break;
 
 				// Adds v[X] to I
 				case 0x001E:
+                    printf("ADD I, V%d\n", (opcode & GET_X) >> 8);
 					this->I += v[(opcode & GET_X) >> 8];
 					this->pc += 2;
 					break;
 
 				// Sets I to the location of the sprite for the character in VX.
 				case 0x0029:
+                    printf("LD F, V%d\n", (opcode & GET_X) >> 8);
 					this->I = v[(opcode & GET_X) >> 8] * 0x5;
 					this->pc += 2;
 					break;
@@ -382,14 +392,16 @@ void chip8::nextCycle(){
 				// Stores the Binary-coded decimal representation of VX at the addresses I, I plus 1, and I plus 2
 				// Implementation by TJA
 				case 0x0033:
-						this->memory[I]     = v[(opcode & 0x0F00) >> 8] / 100;
-						this->memory[I + 1] = (v[(opcode & 0x0F00) >> 8] / 10) % 10;
-						this->memory[I + 2] = (v[(opcode & 0x0F00) >> 8] % 100) % 10;
-						this->pc += 2;
+                    printf("LD B, V%d\n", (opcode & GET_X) >> 8);
+					this->memory[I]     = v[(opcode & 0x0F00) >> 8] / 100;
+					this->memory[I + 1] = (v[(opcode & 0x0F00) >> 8] / 10) % 10;
+					this->memory[I + 2] = (v[(opcode & 0x0F00) >> 8] % 100) % 10;
+					this->pc += 2;
 					break;
 
 				//Stores V0 to VX (including VX) in memory starting at address I.
 				case 0x0055:
+                    printf("LD [I], V%d\n", (opcode & GET_X) >> 8);
 					for(int i = 0; i <= v[(opcode & GET_X) >> 8]; i++){
 						this->memory[I+i] = v[i];
 					}
@@ -398,6 +410,7 @@ void chip8::nextCycle(){
 
 				// Fills V0 to VX (including VX) with values from memory starting at address I.
 				case 0x0065:
+                    printf("LD V%d, [I]\n", (opcode & GET_X) >> 8);
 					for(int i = 0; i <= v[(opcode & GET_X) >> 8]; i++){
 						v[i] = this->memory[I+i];
 					}
