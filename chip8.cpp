@@ -34,6 +34,7 @@ void chip8::initialize(){
 	for(int i = 0; i < 16; i++){
 		this->v[i] = 0;
 		this->stack[i] = 0;
+        this->keyboard[i] = 0;
 	}
 
 	// Clears the display
@@ -349,7 +350,7 @@ void chip8::nextCycle(){
 							v[(opcode & GET_X) >> 8] = i;
 							pressedKey = true;
 						}
-						if(!pressedKey){}//return
+						if(!pressedKey){return;}
                     }
 						this->pc += 2;
                         break;
