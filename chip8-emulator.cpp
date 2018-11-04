@@ -6,12 +6,12 @@
 int main (void){
 
 	chip8 Chip8;
-	int buffer[2048];
-	char pixel;
+	uint32_t buffer[2048];
+	uint8_t pixel;
 
 	// Intializes the Chip8 system and loads the game into memory
 	Chip8.initialize();
-	Chip8.loadGame("roms/MISSILE");
+	Chip8.loadGame("roms/PONG");
 
 	// Graphical System Initialization
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
