@@ -338,8 +338,8 @@ void chip8::nextCycle(){
 			break;
 
 		case 0xF000:
-			switch(opcode & GET_8BIT_CONSTANT){
-
+            printf("0xF SHIT\n");
+            switch(opcode & GET_8BIT_CONSTANT){
 				// Sets VX to the value of the delay timer.
 				case 0x0007:
 					v[(opcode & GET_X) >> 8] = this->delayTimer;
@@ -402,7 +402,7 @@ void chip8::nextCycle(){
 				//Stores V0 to VX (including VX) in memory starting at address I.
 				case 0x0055:
                     printf("LD [I], V%d\n", (opcode & GET_X) >> 8);
-					for(int i = 0; i <= v[(opcode & GET_X) >> 8]; i++){
+					for(int i = 0; i < 16; i++){
 						this->memory[I+i] = v[i];
 					}
 					this->pc += 2;
@@ -410,17 +410,19 @@ void chip8::nextCycle(){
 
 				// Fills V0 to VX (including VX) with values from memory starting at address I.
 				case 0x0065:
+                    printf("I = %d\n", I);
                     printf("LD V%d, [I]\n", (opcode & GET_X) >> 8);
-					for(int i = 0; i <= v[(opcode & GET_X) >> 8]; i++){
-						v[i] = this->memory[I+i];
+					for(int i = 0; i < 16 ; i++){
+                        v[i] = this->memory[I+i];
 					}
 					this->pc += 2;
 					break;
 			}
+        break;
 
-            default:
-                printf("ERROR! Opcode not known!\n");
-                break;
+        default:
+            printf("ERROR! Opcode not known!\n");
+            break;
 	}
 
 	// Decrement the timers if they are greater than zero

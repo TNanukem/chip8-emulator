@@ -11,7 +11,7 @@ int main (void){
 
 	// Intializes the Chip8 system and loads the game into memory
 	Chip8.initialize();
-	Chip8.loadGame("roms/PONG");
+	Chip8.loadGame("roms/KALEID");
 
 	// Graphical System Initialization
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
