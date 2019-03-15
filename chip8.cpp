@@ -105,7 +105,7 @@ void chip8::nextCycle(){
 
 				// Clears the screen.
 				case 0x00E0:
-					for(int i = 0; i < 2048; i++){
+					for(int i = 0; i < 32*64; i++){
 						display[i] = 0;
 					}
 					pc += 2;
@@ -117,6 +117,7 @@ void chip8::nextCycle(){
 				case 0x00EE:
 					sp--;
 					pc = stack[sp];
+                    pc += 2;
                     printf("RET\n");
 					break;
 			}
@@ -138,19 +139,19 @@ void chip8::nextCycle(){
 
 		// Skips the next instruction if v[X] is equal to NN
 		case 0x3000:
-			if(v[(opcode & GET_X) >> 8] == (opcode & GET_8BIT_CONSTANT)){
+			if(v[(opcode & GET_X) >> 8] == (opcode & GET_8BIT_CONSTANT))
 					pc += 4;
-			}
-			else pc += 2;
+			else
+                pc += 2;
             printf("SE V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Skips the next instruction if v[X] is not equal to NN
 		case 0x4000:
-			if(v[(opcode & GET_X) >> 8] != (opcode & GET_8BIT_CONSTANT)){
-					pc += 4;
-			}
-			else pc += 2;
+			if(v[(opcode & GET_X) >> 8] != (opcode & GET_8BIT_CONSTANT))
+				pc += 4;
+			else
+                pc += 2;
             printf("SNE V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
@@ -221,7 +222,7 @@ void chip8::nextCycle(){
 
 				// Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
 				case 0x0004:
-					if(v[(opcode & GET_X) >> 8] > 0xFF - v[(opcode & GET_Y) >> 4])
+					if(v[(opcode & GET_Y) >> 4] > (0xFF - v[(opcode & GET_X) >> 8]))
 						v[0xF] = 1;
 					else
 						v[0xF] = 0;
@@ -232,10 +233,10 @@ void chip8::nextCycle(){
 
 				// VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
 				case 0x0005:
-					if(v[(opcode & GET_Y) >> 4] > v[(opcode & GET_X) >> 8])
-						v[0xF] = 0;
-					else
+					if(v[(opcode & GET_X) >> 8] > v[(opcode & GET_Y) >> 4])
 						v[0xF] = 1;
+					else
+						v[0xF] = 0;
 					v[(opcode & GET_X) >> 8] -= v[(opcode & GET_Y) >> 4];
 					pc += 2;
                     printf("SUB V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
@@ -243,18 +244,21 @@ void chip8::nextCycle(){
 
 				// Stores the least significant bit of VX in VF and then shifts VX to the right by 1.
 				case 0x0006:
-					v[0xF] = v[(opcode & GET_X) >> 8] & 0x1;
-					v[(opcode & GET_X) >> 8] >> 1;
-					pc += 2;
+					if((v[(opcode & GET_X) >> 8] & 0x01) == 0x01)
+                        v[0xF] = 1;
+                    else
+                        v[0xF] = 0;
+                    pc += 2;
+                    v[(opcode & GET_X) >> 8] = v[(opcode & GET_X) >> 8]/2;
                     printf("SHR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
 				case 0x0007:
-					if(v[(opcode & GET_X) >> 8] > v[(opcode & GET_Y) >> 4])
-						v[0xF] = 0;
-					else
+					if(v[(opcode & GET_Y) >> 4] > v[(opcode & GET_X) >> 8])
 						v[0xF] = 1;
+					else
+						v[0xF] = 0;
 					v[(opcode & GET_X) >> 8] = v[(opcode & GET_Y) >> 4] - v[(opcode & GET_X) >> 8];
 					pc += 2;
                     printf("SUBN V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
@@ -262,9 +266,12 @@ void chip8::nextCycle(){
 
 				// Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
 				case 0x000E:
-					v[0xF] = v[(opcode & GET_X) >> 8] >> 7;
-					v[(opcode & GET_X) >> 8] << 1;
+                    if((v[(opcode & GET_X) >> 8] & 0x80) == 0x80)
+                        v[0xF] = 1;
+                    else
+                        v[0xF] = 0;
 					pc += 2;
+                    v[(opcode & GET_X) >> 8] = v[(opcode & GET_X) >> 8]*2;
                     printf("SHL V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 			}
@@ -280,13 +287,12 @@ void chip8::nextCycle(){
 		// Jumps to the address V0 + NNN
 		case 0xB000:
 			pc = (opcode & GET_ADDRESS) + v[0];
-			pc += 2;
             printf("JP V0,%d\n", opcode & GET_ADDRESS);
 			break;
 
 		// Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and NN.
 		case 0xC000:
-			v[opcode & GET_X >> 8] = (rand() % 256) & (opcode & GET_8BIT_CONSTANT);
+			v[opcode & GET_X >> 8] = (rand() % 255) & (opcode & GET_8BIT_CONSTANT);
 			pc += 2;
             printf("RND V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
@@ -296,21 +302,21 @@ void chip8::nextCycle(){
             xaux = (opcode & GET_X) >> 8;
             yaux = (opcode & GET_Y) >> 4;
             height = opcode & GET_4BIT_CONSTANT;
-            v[15] = 0;         // Resets the VF
+
+            v[0xF] = 0;         // Resets the VF
 
             for(int y = 0; y < height; y++){              // Passes through all lines of the sprite
                 pixel = memory[I + y];      // Fetches the pixel value on the memory
                 for(int x = 0; x < 8; x++){             // Passes through all 8 columns of the sprite, in each line
-                    if(pixel & (0x80 >> x) != 0){
-                        if(display[xaux + x + (yaux + y)*64] == 1){
-                            v[15] = 1;                 // Registers the collision
-                        }
-                        display[xaux + x + (yaux + y)*64] ^= 1;
+                    if((pixel & (0x80 >> x)) != 0){
+                        if(display[(xaux + x + ((yaux + y)*64))] == 1)
+                            v[0xF] = 1;                 // Registers the collision
+                        display[(xaux + x + ((yaux + y)*64))] ^= 1;
                     }
                 }
             }
 
-            drawFlag = 1;
+            drawFlag = true;
 			pc += 2;
             printf("DRW V%d,V%d,%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4, opcode & GET_4BIT_CONSTANT);
 			break;
@@ -352,12 +358,14 @@ void chip8::nextCycle(){
 				case 0x000A:
                     printf("KEYWAIT V%d, K\n", (opcode & GET_X) >> 8);
 					pressedKey = false;
-					for(int i = 0; i < 16; i++){
-						if(keyboard[i] != 0){
-							v[(opcode & GET_X) >> 8] = i;
-							pressedKey = true;
-						}
-						if(!pressedKey){return;}
+                    while(!pressedKey){
+    					for(int i = 0; i < 16; i++){
+    						if(keyboard[i] != 0){
+    							v[(opcode & GET_X) >> 8] = i;
+    							pressedKey = true;
+                                break;
+    						}
+                        }
                     }
 						pc += 2;
                         break;
@@ -379,10 +387,10 @@ void chip8::nextCycle(){
 				// Adds v[X] to I
 				case 0x001E:
                     printf("ADD I, V%d\n", (opcode & GET_X) >> 8);
-                    if(I + v[(opcode & GET_X) >> 8] > 0xFFF)
-                        v[15] = 1;
+                    if((I + v[(opcode & GET_X) >> 8]) > 0xFFFF)
+                        v[0xF] = 1;
                     else
-                        v[15] = 0;
+                        v[0xF] = 0;
 
                     I += v[(opcode & GET_X) >> 8];
 					pc += 2;
@@ -408,9 +416,10 @@ void chip8::nextCycle(){
 				//Stores V0 to VX (including VX) in memory starting at address I.
 				case 0x0055:
                     printf("LD [I], V%d\n", (opcode & GET_X) >> 8);
-					for(int i = 0; i < 16; i++){
+					for(int i = 0; i <= ((opcode & GET_X) >> 8); i++){
 						memory[I+i] = v[i];
 					}
+                    I += ((opcode & GET_X) >> 8) + 1;
 					pc += 2;
 					break;
 
@@ -418,9 +427,10 @@ void chip8::nextCycle(){
 				case 0x0065:
                     printf("I = %d\n", I);
                     printf("LD V%d, [I]\n", (opcode & GET_X) >> 8);
-					for(int i = 0; i < 16 ; i++){
+					for(int i = 0; i <= ((opcode & GET_X) >> 8) ; i++){
                         v[i] = memory[I+i];
 					}
+                    I += ((opcode & GET_X) >> 8) + 1;
 					pc += 2;
 					break;
 			}

@@ -20,7 +20,7 @@ class chip8{
 	uint16_t  I;				// Adress register is two-byte long
 	uint16_t  pc;				// Program counter is two-byte long
 
-	uint8_t  display[64 * 32];	// The 64x32 pixels display
+	uint32_t  display[64 * 32];	// The 64x32 pixels display
 	uint8_t  delayTimer;
 	uint8_t  soundTimer;
 
@@ -29,7 +29,7 @@ class chip8{
 
 	uint8_t  keyboard[16];		// The keyboard has 16 keys
 
-	bool	drawFlag;				// Flag to determine if we should draw on the screen or not.
+	bool drawFlag = false;				// Flag to determine if we should draw on the screen or not.
 
 	void nextCycle();
 	void initialize();

@@ -3,10 +3,39 @@
 
 #include "chip8.h"
 
+void saveGame(int slot, chip8 *Chip8){
+	FILE* saveGame;
+	char game[] = "PONG";
+	char filename[64];
+
+	sprintf(filename, "roms/%s_%d.sav", game, slot);
+	saveGame = fopen(filename,"wb");
+
+	fwrite(Chip8, sizeof(chip8), 1, saveGame);
+}
+
+chip8 loadGame(int slot, chip8 *Chip8){
+	FILE* loadGame;
+	char game[] = "PONG";
+	char filename[64];
+
+	sprintf(filename, "roms/%s_%d.sav", game, slot);
+	loadGame = fopen(filename,"rb");
+
+	if(loadGame == NULL){
+		return *Chip8;
+	}
+
+	chip8 aux;
+
+	fread(&aux, sizeof(chip8), 1, loadGame);
+	return aux;
+}
+
 int main (void){
 
 	chip8 Chip8;
-	uint32_t buffer[2048];
+	uint32_t buffer[32*64];
 	uint8_t pixel;
 	uint8_t slot = 0;
 
@@ -19,19 +48,19 @@ int main (void){
 		printf("Error! Unable to initialize the SDL!\n");
 
 	// Creates the screen
-	SDL_Window* screen = SDL_CreateWindow("CHIP-8 Emulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 512, 0);
+	SDL_Window* screen = SDL_CreateWindow("CHIP-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 512, SDL_WINDOW_SHOWN);
 	if(screen == NULL)
 		printf("Error! Unable to create the screen!\n");
 
 	// Creates the render
-	SDL_Renderer* render = SDL_CreateRenderer(screen, -1, 0);
+	SDL_Renderer* render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
 	if(render == NULL)
 		printf("Error! Unable to create the render!\n");
-	SDL_SetRenderDrawColor(render,255,0,0,255);
-	SDL_RenderClear(render);
+
+	SDL_SetRenderDrawColor(render, 0xFF, 0xFF, 0xFF, 0xFF);
 
 	// Creates the Texture
-	SDL_Texture* texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32);
+	SDL_Texture* texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, 64, 32);
 	if(texture == NULL)
 		printf("Error! Unable to create the texture!\n");
 
@@ -72,13 +101,13 @@ int main (void){
 			// Saves the game on the selected slot
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2){
 				printf("Saving the game on slot %d\n", slot);
-				// Chip8.saveGame(slot)
+				saveGame(slot, &Chip8);
 			}
 
 			// Loads the game from the selected slot
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3){
 				printf("Loading the game from slot %d\n", slot);
-				// Chip8.loadGame(slot)
+				Chip8 = loadGame(slot, &Chip8);
 			}
 
 			// All the pressed keys options
@@ -126,7 +155,26 @@ int main (void){
 		Chip8.nextCycle();
 
 		if(Chip8.drawFlag){
-			Chip8.drawFlag = 0;
+
+			// SDL_SetRenderDrawColor(render, 0x00, 0x00, 0x00, 0xFF);
+			// SDL_RenderClear(render);
+			// int changeLine = 0;
+			// int changeColumn = 0;
+			//
+			// for(int i = 0; i < 32*64; i++){
+			// 	if((i % 64) == 0){
+			// 		changeLine += 9;
+			// 		changeColumn = 0;
+			// 	}
+			// 	if(Chip8.display[i] == 1){
+			// 		SDL_Rect fillRect = {changeColumn, changeLine, 10, 10};
+			// 		SDL_SetRenderDrawColor(render, 0x00, 0xFF, 0x00, 0xFF);
+			// 		SDL_RenderFillRect(render, &fillRect);
+			// 	}
+			// 	changeColumn += 9;
+			// }
+			// SDL_RenderPresent(render);
+			Chip8.drawFlag = false;
 
 			// Saves the display pixels on the buffer
 			for(int i = 0; i < 2048; i++){
@@ -135,17 +183,17 @@ int main (void){
 			}
 
 			// Updates the screen
-			SDL_UpdateTexture(texture, NULL, buffer, 64 * sizeof(int));
-			SDL_RenderClear(render);
+			SDL_UpdateTexture(texture, NULL, buffer, 64 * sizeof(uint32_t));
 			SDL_RenderCopy(render, texture, NULL, NULL);
 			SDL_RenderPresent(render);
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(25));
-		SDL_RenderClear(render);
+		//SDL_RenderClear(render);
 	}
 
 	// Free every SDL structure allocated
+	SDL_DestroyTexture(texture);
 	SDL_DestroyRenderer(render);
 	SDL_DestroyWindow(screen);
 	SDL_Quit();
