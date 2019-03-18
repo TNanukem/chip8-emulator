@@ -35,8 +35,7 @@ chip8 loadGame(int slot, chip8 *Chip8){
 int main (void){
 
 	chip8 Chip8;
-	uint32_t buffer[32*64];
-	uint8_t pixel;
+	display Display;
 	uint8_t slot = 0;
 
 	// Intializes the Chip8 system and loads the game into memory
@@ -44,28 +43,7 @@ int main (void){
 	Chip8.loadGame("roms/PONG");
 
 	// Graphical System Initialization
-	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
-		printf("Error! Unable to initialize the SDL!\n");
-
-	// Creates the screen
-	SDL_Window* screen = SDL_CreateWindow("CHIP-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 512, SDL_WINDOW_SHOWN);
-	if(screen == NULL)
-		printf("Error! Unable to create the screen!\n");
-
-	// Creates the render
-	SDL_Renderer* render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
-	if(render == NULL)
-		printf("Error! Unable to create the render!\n");
-
-	SDL_SetRenderDrawColor(render, 0xFF, 0xFF, 0xFF, 0xFF);
-
-	// Creates the Texture
-	SDL_Texture* texture = SDL_CreateTexture(render, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, 64, 32);
-	if(texture == NULL)
-		printf("Error! Unable to create the texture!\n");
-
-	// Delay to see possible errors
-	SDL_Delay(1000);
+	Display.displayInit();
 
 	while(1){			// Emulation loop
 
@@ -174,29 +152,16 @@ int main (void){
 			// 	changeColumn += 9;
 			// }
 			// SDL_RenderPresent(render);
+
 			Chip8.drawFlag = false;
-
-			// Saves the display pixels on the buffer
-			for(int i = 0; i < 2048; i++){
-				pixel = Chip8.display[i];
-				buffer[i] = (0x00FFFFFF * pixel) | 0xFF000000;
-			}
-
-			// Updates the screen
-			SDL_UpdateTexture(texture, NULL, buffer, 64 * sizeof(uint32_t));
-			SDL_RenderCopy(render, texture, NULL, NULL);
-			SDL_RenderPresent(render);
+			Display.displayDraw(Chip8.display);
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(25));
-		//SDL_RenderClear(render);
 	}
 
 	// Free every SDL structure allocated
-	SDL_DestroyTexture(texture);
-	SDL_DestroyRenderer(render);
-	SDL_DestroyWindow(screen);
-	SDL_Quit();
+	Display.displayDestroy();
 
 	return 0;
 }

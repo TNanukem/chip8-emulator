@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <chrono>
 #include <thread>
-#include <SDL2/SDL.h>
+#include "display.h"
 
 // CHIP-8 Simulator .h file
 // Tiago Toledo Junior
