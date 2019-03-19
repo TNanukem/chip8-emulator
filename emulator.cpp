@@ -1,25 +1,22 @@
-/* An CHIP-8 emulator built in C++, work in progress
-   Tiago Toledo Junior (a.k.a TNanukem) */
+#include "emulator.h"
 
-#include "chip8.h"
-
-void saveGame(int slot, chip8 *Chip8){
+void emulator::saveGame(uint8_t SaveStateSlot, chip8 *Chip8){
 	FILE* saveGame;
 	char game[] = "PONG";
 	char filename[64];
 
-	sprintf(filename, "roms/%s_%d.sav", game, slot);
+	sprintf(filename, "roms/%s_%d.sav", game, SaveStateSlot);
 	saveGame = fopen(filename,"wb");
 
 	fwrite(Chip8, sizeof(chip8), 1, saveGame);
 }
 
-chip8 loadGame(int slot, chip8 *Chip8){
+chip8 emulator::loadGame(uint8_t SaveStateSlot, chip8 *Chip8){
 	FILE* loadGame;
 	char game[] = "PONG";
 	char filename[64];
 
-	sprintf(filename, "roms/%s_%d.sav", game, slot);
+	sprintf(filename, "roms/%s_%d.sav", game, SaveStateSlot);
 	loadGame = fopen(filename,"rb");
 
 	if(loadGame == NULL){
@@ -32,11 +29,9 @@ chip8 loadGame(int slot, chip8 *Chip8){
 	return aux;
 }
 
-int main (void){
-
-	chip8 Chip8;
+void emulator::emulate(){
+    chip8 Chip8;
 	display Display;
-	uint8_t slot = 0;
 
 	// Intializes the Chip8 system and loads the game into memory
 	Chip8.initialize();
@@ -52,7 +47,7 @@ int main (void){
 		// Event loop -> This is what controls the keyboard inputs
 		while(SDL_PollEvent(&event)){
 			if(event.type == SDL_QUIT)		// Closes the window when the user clicks on the close button
-				return 0;
+				return;
 
 			// Structure that pauses the game when the user presses the spacebar
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE){
@@ -67,25 +62,25 @@ int main (void){
 				printf("Unpausing Game\n");
 			}
 
-			// Selects the load/save state slot
+			// Selects the load/save state SaveStateSlot
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1){
-				if(slot == 3)
-					slot = 0;
+				if(SaveStateSlot == 3)
+					SaveStateSlot = 0;
 				else
-					slot++;
-				printf("Selected slot %d\n", slot);
+					SaveStateSlot++;
+				printf("Selected SaveStateSlot %d\n", SaveStateSlot);
 			}
 
-			// Saves the game on the selected slot
+			// Saves the game on the selected SaveStateSlot
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2){
-				printf("Saving the game on slot %d\n", slot);
-				saveGame(slot, &Chip8);
+				printf("Saving the game on SaveStateSlot %d\n", SaveStateSlot);
+				saveGame(SaveStateSlot, &Chip8);
 			}
 
-			// Loads the game from the selected slot
+			// Loads the game from the selected SaveStateSlot
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3){
-				printf("Loading the game from slot %d\n", slot);
-				Chip8 = loadGame(slot, &Chip8);
+				printf("Loading the game from SaveStateSlot %d\n", SaveStateSlot);
+				Chip8 = loadGame(SaveStateSlot, &Chip8);
 			}
 
 			// All the pressed keys options
@@ -162,6 +157,4 @@ int main (void){
 
 	// Free every SDL structure allocated
 	Display.displayDestroy();
-
-	return 0;
 }
