@@ -23,8 +23,9 @@ This emulator is a work in progress. Below you can see the next steps into the d
 
 ### Next Steps
 1. Correct ROM file name handling for input and save/load state.
-2. Create an UI for ROM selection and other options.
-3. Sound system.
+2. Create .gitignore and Makefile.
+3. Create an UI for ROM selection and other options.
+4. Sound system.
 ### Completed
 1. Basic hardware structure.
 2. Emulation lopp.
