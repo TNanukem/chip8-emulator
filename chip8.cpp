@@ -299,8 +299,8 @@ void chip8::nextCycle(){
 
 		// Draws a sprite at (vx,vy) with size height of N pixels
 		case 0xD000:
-            xaux = (opcode & GET_X) >> 8;
-            yaux = (opcode & GET_Y) >> 4;
+            xaux = v[(opcode & GET_X) >> 8];
+            yaux = v[(opcode & GET_Y) >> 4];
             height = opcode & GET_4BIT_CONSTANT;
 
             v[0xF] = 0;         // Resets the VF
