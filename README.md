@@ -22,18 +22,22 @@ The Chip8 features a hex keyboard as shown below.
 This emulator is a work in progress. Below you can see the next steps into the development.
 
 ### Next Steps
-1. Debug and complete the screen graphics.
-2. Save/load state system.
-3. Create an UI for ROM selection and other options.
-4. Sound system.
+1. Correct ROM file name handling for input and save/load state.
+2. Create an UI for ROM selection and other options.
+3. Sound system.
 ### Completed
 1. Basic hardware structure.
 2. Emulation lopp.
 3. Opcodes.
 4. Pause Game System.
 5. Input handling.
+6. Debug and complete the screen graphics.
+7. Save/load state system.
 
 ## Resources
 These are the resources i've been using to build this project:
   - http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
   - https://en.wikipedia.org/wiki/CHIP-8
+  
+## Special Thanks
+I wanna thank my good friend Lucas Akira (https://github.com/lucas-akira) for helping me debug the graphics of the emulator.
