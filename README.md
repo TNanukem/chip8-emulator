@@ -23,17 +23,18 @@ This emulator is a work in progress. Below you can see the next steps into the d
 
 ### Next Steps
 1. Correct ROM file name handling for input and save/load state.
-2. Create .gitignore and Makefile.
-3. Create an UI for ROM selection and other options.
+2. Create an UI for ROM selection and other options.
+3. Allow the selection of the debug mode.
 4. Sound system.
 ### Completed
 1. Basic hardware structure.
-2. Emulation lopp.
+2. Emulation loop.
 3. Opcodes.
 4. Pause Game System.
 5. Input handling.
 6. Debug and complete the screen graphics.
 7. Save/load state system.
+8. Create .gitignore and Makefile.
 
 ## Resources
 These are the resources i've been using to build this project:
