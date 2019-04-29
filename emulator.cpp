@@ -35,7 +35,7 @@ void emulator::emulate(){
 
 	// Intializes the Chip8 system and loads the game into memory
 	Chip8.initialize();
-	Chip8.loadGame("roms/TETRIS");
+	Chip8.loadGame("roms/PONG");
 
 	// Graphical System Initialization
 	Display.displayInit();
@@ -152,7 +152,7 @@ void emulator::emulate(){
 			Display.displayDraw(Chip8.display);
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(4));
 	}
 
 	// Free every SDL structure allocated
