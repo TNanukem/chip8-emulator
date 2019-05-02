@@ -33,5 +33,5 @@ class chip8{
 
 	void nextCycle();
 	void initialize();
-	bool loadGame(char *game);
+	bool loadGame(std::string game);
 };

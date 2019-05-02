@@ -3,11 +3,11 @@
 
 #include "emulator.h"
 
-int main (void){
+int main (int argc, char** argv){
 
 	emulator Chip8Emulator;
 
-	Chip8Emulator.emulate();
+	Chip8Emulator.emulate(argc, argv);
 
 	return 0;
 }

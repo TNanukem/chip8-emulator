@@ -1,23 +1,25 @@
 #include "emulator.h"
 
-void emulator::saveGame(uint8_t SaveStateSlot, chip8 *Chip8){
+void emulator::saveGame(uint8_t SaveStateSlot, chip8 *Chip8, std::string game){
 	FILE* saveGame;
-	char game[] = "PONG";
-	char filename[64];
 
-	sprintf(filename, "roms/%s_%d.sav", game, SaveStateSlot);
-	saveGame = fopen(filename,"wb");
+	std::string extension = std::string("_") + std::to_string(SaveStateSlot)
+							+ std::string(".sav");
+	game.append(extension);
+
+	saveGame = fopen(game.c_str(),"wb");
 
 	fwrite(Chip8, sizeof(chip8), 1, saveGame);
 }
 
-chip8 emulator::loadGame(uint8_t SaveStateSlot, chip8 *Chip8){
+chip8 emulator::loadGame(uint8_t SaveStateSlot, chip8 *Chip8, std::string game){
 	FILE* loadGame;
-	char game[] = "PONG";
-	char filename[64];
 
-	sprintf(filename, "roms/%s_%d.sav", game, SaveStateSlot);
-	loadGame = fopen(filename,"rb");
+	std::string extension = std::string("_") + std::to_string(SaveStateSlot)
+							+ std::string(".sav");
+	game.append(extension);
+
+	loadGame = fopen(game.c_str(),"rb");
 
 	if(loadGame == NULL){
 		return *Chip8;
@@ -29,13 +31,19 @@ chip8 emulator::loadGame(uint8_t SaveStateSlot, chip8 *Chip8){
 	return aux;
 }
 
-void emulator::emulate(){
+void emulator::emulate(int argc, char** argv){
     chip8 Chip8;
 	display Display;
 
 	// Intializes the Chip8 system and loads the game into memory
 	Chip8.initialize();
-	Chip8.loadGame("roms/PONG");
+	std::string load;
+
+	// Handling the game input from command line
+	if(argc >= 2)
+		load = std::string("roms/") + argv[1];
+	else load = std::string("roms/PONG");
+	Chip8.loadGame(load);
 
 	// Graphical System Initialization
 	Display.displayInit();
@@ -74,13 +82,13 @@ void emulator::emulate(){
 			// Saves the game on the selected SaveStateSlot
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2){
 				printf("Saving the game on SaveStateSlot %d\n", SaveStateSlot);
-				saveGame(SaveStateSlot, &Chip8);
+				saveGame(SaveStateSlot, &Chip8, load);
 			}
 
 			// Loads the game from the selected SaveStateSlot
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3){
 				printf("Loading the game from SaveStateSlot %d\n", SaveStateSlot);
-				Chip8 = loadGame(SaveStateSlot, &Chip8);
+				Chip8 = loadGame(SaveStateSlot, &Chip8, load);
 			}
 
 			// All the pressed keys options
@@ -152,7 +160,7 @@ void emulator::emulate(){
 			Display.displayDraw(Chip8.display);
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(4));
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	}
 
 	// Free every SDL structure allocated

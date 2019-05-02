@@ -60,9 +60,9 @@ void chip8::initialize(){
 
 }
 
-bool chip8::loadGame(char *game){
+bool chip8::loadGame(std::string game){
     printf("Loading the game....\n");
-	FILE *gameP = fopen(game, "rb");
+	FILE *gameP = fopen(game.c_str(), "rb");
 	if(gameP == NULL){
         printf("ERROR! Game file not found!\n");
 		return false;
