@@ -22,7 +22,7 @@ The Chip8 features a hex keyboard as shown below.
 This emulator is a work in progress. Below you can see the next steps into the development.
 
 ### Next Steps
-1. Correct ROM file name handling for input and save/load state.
+1. FPS Counter.
 2. Create an UI for ROM selection and other options.
 3. Allow the selection of the debug mode.
 4. Sound system.
@@ -35,6 +35,7 @@ This emulator is a work in progress. Below you can see the next steps into the d
 6. Debug and complete the screen graphics.
 7. Save/load state system.
 8. Create .gitignore and Makefile.
+9. Correct ROM file name handling for input and save/load state.
 
 ## Resources
 These are the resources i've been using to build this project:
