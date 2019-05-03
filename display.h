@@ -10,4 +10,5 @@ class display {
     void displayInit();
     void displayDraw(uint32_t *disp);
     void displayDestroy();
+    void changeWindowName(char *title);
 };

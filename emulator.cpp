@@ -63,7 +63,9 @@ void emulator::emulate(int argc, char** argv){
 	// Opening the audio device
 	SDL_AudioDeviceID deviceId = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
 
-	//playSound(deviceId, wavBuffer, wavLength);
+	// For the FPS count
+	clock_t before = clock();
+	double frameCount = 0;
 
 	while(1){			// Emulation loop
 
@@ -176,12 +178,26 @@ void emulator::emulate(int argc, char** argv){
 			Chip8.drawFlag = false;
 			Display.displayDraw(Chip8.display);
 
-			if(Chip8.playSound)
-				playSound(deviceId, wavBuffer, wavLength);
-				Chip8.playSound = false;
-		}
+			frameCount++;
+			clock_t now = clock();
+			float time = 100*(float)(now-before)/CLOCKS_PER_SEC;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+			//printf("%f\n", time);
+			// If a second has passed, update the FPS
+			if(time >= 1.0){
+				char title[255];
+
+				snprintf(title, 255, "Chip8 Emulator - FPS: %3.3f", frameCount);
+				Display.changeWindowName(title);
+				before = now;
+				frameCount = 0;
+			}
+		}
+		if(Chip8.playSound)
+			playSound(deviceId, wavBuffer, wavLength);
+			Chip8.playSound = false;
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 
 	// Free every SDL structure allocated

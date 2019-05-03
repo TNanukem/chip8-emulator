@@ -27,6 +27,10 @@ void display::displayInit(){
 
 }
 
+void display::changeWindowName(char *title){
+    SDL_SetWindowTitle(screen, title);
+}
+
 void display::displayDraw(uint32_t *disp){
     // Saves the display pixels on the buffer
 	uint32_t pixel;

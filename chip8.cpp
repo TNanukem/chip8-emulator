@@ -61,10 +61,10 @@ void chip8::initialize(){
 }
 
 bool chip8::loadGame(std::string game){
-    printf("Loading the game....\n");
+    //printf("Loading the game....\n");
 	FILE *gameP = fopen(game.c_str(), "rb");
 	if(gameP == NULL){
-        printf("ERROR! Game file not found!\n");
+        //printf("ERROR! Game file not found!\n");
 		return false;
 	}
 
@@ -83,7 +83,7 @@ bool chip8::loadGame(std::string game){
 	// Writes the data on the memory
 	for(int i = 0; i < gameSize; i++){
 		memory[i + 512] = buffer[i];
-        printf("Memory[%d] = %d\n", i+512,memory[i+512]);
+        //printf("Memory[%d] = %d\n", i+512,memory[i+512]);
 	}
 
 	fclose(gameP);
@@ -110,7 +110,7 @@ void chip8::nextCycle(){
 					}
 					pc += 2;
 					drawFlag = 1;
-                    printf("CLS\n");
+                    //printf("CLS\n");
 					break;
 
 				// Returns from a subroutine.
@@ -118,7 +118,7 @@ void chip8::nextCycle(){
 					sp--;
 					pc = stack[sp];
                     pc += 2;
-                    printf("RET\n");
+                    //printf("RET\n");
 					break;
 			}
 			break;
@@ -126,7 +126,7 @@ void chip8::nextCycle(){
 		// Jumps to the address NNN
 		case 0x1000:
 			pc = (opcode & GET_ADDRESS);
-            printf("JMP %d\n", opcode & GET_ADDRESS);
+            //printf("JMP %d\n", opcode & GET_ADDRESS);
 			break;
 
         // Calls subroutine at NNN.
@@ -134,7 +134,7 @@ void chip8::nextCycle(){
 			stack[sp] = pc;
 			sp++;
 			pc = opcode & GET_ADDRESS;
-            printf("CALL %d\n", opcode & GET_ADDRESS);
+            //printf("CALL %d\n", opcode & GET_ADDRESS);
 			break;
 
 		// Skips the next instruction if v[X] is equal to NN
@@ -143,7 +143,7 @@ void chip8::nextCycle(){
 					pc += 4;
 			else
                 pc += 2;
-            printf("SE V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
+            //printf("SE V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Skips the next instruction if v[X] is not equal to NN
@@ -152,7 +152,7 @@ void chip8::nextCycle(){
 				pc += 4;
 			else
                 pc += 2;
-            printf("SNE V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
+            //printf("SNE V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Skips the next instruction if v[X] is equal to v[Y]
@@ -163,21 +163,21 @@ void chip8::nextCycle(){
 			else
 				pc += 2;
 
-            printf("SE V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+            //printf("SE V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 			break;
 
 		// Sets v[X] to NN
 		case 0x6000:
 			v[(opcode & GET_X) >> 8] = (opcode & GET_8BIT_CONSTANT);
 			pc += 2;
-            printf("LD V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
+            //printf("LD V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Adds NN to v[X]
 		case 0x7000:
 			v[(opcode & GET_X) >> 8]  += (opcode & GET_8BIT_CONSTANT);
 			pc += 2;
-            printf("ADD V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
+            //printf("ADD V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Skips the next instruction if v[X] is not equal to v[Y]
@@ -186,7 +186,7 @@ void chip8::nextCycle(){
 				pc += 4;
 			}
 			else pc += 2;
-            printf("SNE V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+            //printf("SNE V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 			break;
 
 		case 0x8000:
@@ -196,28 +196,28 @@ void chip8::nextCycle(){
 				case 0x0000:
 					v[(opcode & GET_X) >> 8] = v[(opcode & GET_Y) >> 4];
 					pc += 2;
-                    printf("LD V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+                    //printf("LD V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Sets v[X] to v[X] OR v[Y]
 				case 0x0001:
 					v[(opcode & GET_X) >> 8] |= v[(opcode & GET_Y) >> 4];
 					pc += 2;
-                    printf("OR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+                    //printf("OR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Sets v[X] to v[X] AND v[Y]
 				case 0x0002:
 					v[(opcode & GET_X) >> 8] &= v[(opcode & GET_Y) >> 4];
 					pc += 2;
-                    printf("AND V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+                    //printf("AND V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Sets v[X] to v[X] XOR v[Y]
 				case 0x0003:
 					v[(opcode & GET_X) >> 8] ^= v[(opcode & GET_Y) >> 4];
 					pc += 2;
-                    printf("XOR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+                    //printf("XOR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
@@ -228,7 +228,7 @@ void chip8::nextCycle(){
 						v[0xF] = 0;
 					v[(opcode & GET_X) >> 8] += v[(opcode & GET_Y) >> 4];
 					pc += 2;
-                    printf("ADD V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+                    //printf("ADD V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
@@ -239,7 +239,7 @@ void chip8::nextCycle(){
 						v[0xF] = 0;
 					v[(opcode & GET_X) >> 8] -= v[(opcode & GET_Y) >> 4];
 					pc += 2;
-                    printf("SUB V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+                    //printf("SUB V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Stores the least significant bit of VX in VF and then shifts VX to the right by 1.
@@ -250,7 +250,7 @@ void chip8::nextCycle(){
                         v[0xF] = 0;
                     pc += 2;
                     v[(opcode & GET_X) >> 8] = v[(opcode & GET_X) >> 8]/2;
-                    printf("SHR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+                    //printf("SHR V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
@@ -261,7 +261,7 @@ void chip8::nextCycle(){
 						v[0xF] = 0;
 					v[(opcode & GET_X) >> 8] = v[(opcode & GET_Y) >> 4] - v[(opcode & GET_X) >> 8];
 					pc += 2;
-                    printf("SUBN V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+                    //printf("SUBN V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 
 				// Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
@@ -272,7 +272,7 @@ void chip8::nextCycle(){
                         v[0xF] = 0;
 					pc += 2;
                     v[(opcode & GET_X) >> 8] = v[(opcode & GET_X) >> 8]*2;
-                    printf("SHL V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
+                    //printf("SHL V%d,V%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4);
 					break;
 			}
 			break;
@@ -281,20 +281,20 @@ void chip8::nextCycle(){
 		case 0xA000:
 			I = opcode & GET_ADDRESS;
 			pc += 2;
-            printf("LD I, %d\n", opcode & GET_ADDRESS);
+            //printf("LD I, %d\n", opcode & GET_ADDRESS);
 			break;
 
 		// Jumps to the address V0 + NNN
 		case 0xB000:
 			pc = (opcode & GET_ADDRESS) + v[0];
-            printf("JP V0,%d\n", opcode & GET_ADDRESS);
+            //printf("JP V0,%d\n", opcode & GET_ADDRESS);
 			break;
 
 		// Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and NN.
 		case 0xC000:
 			v[opcode & GET_X >> 8] = (rand() % 255) & (opcode & GET_8BIT_CONSTANT);
 			pc += 2;
-            printf("RND V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
+            //printf("RND V%d,%d\n", (opcode & GET_X) >> 8, opcode & GET_8BIT_CONSTANT);
 			break;
 
 		// Draws a sprite at (vx,vy) with size height of N pixels
@@ -318,7 +318,7 @@ void chip8::nextCycle(){
 
             drawFlag = true;
 			pc += 2;
-            printf("DRW V%d,V%d,%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4, opcode & GET_4BIT_CONSTANT);
+            //printf("DRW V%d,V%d,%d\n", (opcode & GET_X) >> 8, (opcode & GET_Y) >> 4, opcode & GET_4BIT_CONSTANT);
 			break;
 
 		case 0xE000:
@@ -326,7 +326,7 @@ void chip8::nextCycle(){
 
 				// Skips the next instruction if the key stored in VX is pressed.
 				case 0x000E:
-                    printf("SKP V%d\n", (opcode & GET_X) >> 8);
+                    //printf("SKP V%d\n", (opcode & GET_X) >> 8);
 					if(keyboard[v[(opcode & GET_X) >> 8]] != 0)
 						pc += 4;
 					else
@@ -335,7 +335,7 @@ void chip8::nextCycle(){
 
 				// Skips the next instruction if the key stored in VX isn't pressed.
 				case 0x0001:
-                    printf("SKNP V%d\n", (opcode & GET_X) >> 8);
+                    //printf("SKNP V%d\n", (opcode & GET_X) >> 8);
 					if(keyboard[v[(opcode & GET_X) >> 8]] == 0)
 						pc += 4;
 					else
@@ -351,12 +351,12 @@ void chip8::nextCycle(){
 				case 0x0007:
 					v[(opcode & GET_X) >> 8] = delayTimer;
 					pc += 2;
-                    printf("LD V%d, DT\n", (opcode & GET_X) >> 8);
+                    //printf("LD V%d, DT\n", (opcode & GET_X) >> 8);
 					break;
 
                 // A key press is awaited, and then stored in VX
 				case 0x000A:
-                    printf("KEYWAIT V%d, K\n", (opcode & GET_X) >> 8);
+                    //printf("KEYWAIT V%d, K\n", (opcode & GET_X) >> 8);
 					pressedKey = false;
                     while(!pressedKey){
     					for(int i = 0; i < 16; i++){
@@ -372,21 +372,21 @@ void chip8::nextCycle(){
 
 				// Sets the delay timer to the value of v[X]
 				case 0x0015:
-                    printf("LD DT, V%d\n", (opcode & GET_X) >> 8);
+                    //printf("LD DT, V%d\n", (opcode & GET_X) >> 8);
 					delayTimer = v[(opcode & GET_X) >> 8];
 					pc += 2;
 					break;
 
 				// Sets the sound timer to the value of v[X]
 				case 0x0018:
-                    printf("LD ST, V%d\n", (opcode & GET_X) >> 8);
+                    //printf("LD ST, V%d\n", (opcode & GET_X) >> 8);
 					soundTimer = v[(opcode & GET_X) >> 8];
 					pc += 2;
 					break;
 
 				// Adds v[X] to I
 				case 0x001E:
-                    printf("ADD I, V%d\n", (opcode & GET_X) >> 8);
+                    //printf("ADD I, V%d\n", (opcode & GET_X) >> 8);
                     if((I + v[(opcode & GET_X) >> 8]) > 0xFFFF)
                         v[0xF] = 1;
                     else
@@ -398,7 +398,7 @@ void chip8::nextCycle(){
 
 				// Sets I to the location of the sprite for the character in VX.
 				case 0x0029:
-                    printf("LD F, V%d\n", (opcode & GET_X) >> 8);
+                    //printf("LD F, V%d\n", (opcode & GET_X) >> 8);
 					I = v[(opcode & GET_X) >> 8] * 0x5;
 					pc += 2;
 					break;
@@ -406,7 +406,7 @@ void chip8::nextCycle(){
 				// Stores the Binary-coded decimal representation of VX at the addresses I, I plus 1, and I plus 2
 				// Implementation by TJA
 				case 0x0033:
-                    printf("LD B, V%d\n", (opcode & GET_X) >> 8);
+                    //printf("LD B, V%d\n", (opcode & GET_X) >> 8);
 					memory[I]     = v[(opcode & 0x0F00) >> 8] / 100;
 					memory[I + 1] = (v[(opcode & 0x0F00) >> 8] / 10) % 10;
 					memory[I + 2] = (v[(opcode & 0x0F00) >> 8] % 100) % 10;
@@ -415,7 +415,7 @@ void chip8::nextCycle(){
 
 				//Stores V0 to VX (including VX) in memory starting at address I.
 				case 0x0055:
-                    printf("LD [I], V%d\n", (opcode & GET_X) >> 8);
+                    //printf("LD [I], V%d\n", (opcode & GET_X) >> 8);
 					for(int i = 0; i <= ((opcode & GET_X) >> 8); i++){
 						memory[I+i] = v[i];
 					}
@@ -425,8 +425,8 @@ void chip8::nextCycle(){
 
 				// Fills V0 to VX (including VX) with values from memory starting at address I.
 				case 0x0065:
-                    printf("I = %d\n", I);
-                    printf("LD V%d, [I]\n", (opcode & GET_X) >> 8);
+                    //printf("I = %d\n", I);
+                    //printf("LD V%d, [I]\n", (opcode & GET_X) >> 8);
 					for(int i = 0; i <= ((opcode & GET_X) >> 8) ; i++){
                         v[i] = memory[I+i];
 					}
@@ -437,7 +437,7 @@ void chip8::nextCycle(){
         break;
 
         default:
-            printf("ERROR! Opcode not known!\n");
+            //printf("ERROR! Opcode not known!\n");
             break;
 	}
 
@@ -448,7 +448,7 @@ void chip8::nextCycle(){
 	if(soundTimer > 0)
         if(soundTimer == 1){
             playSound = true;
-            printf("BEEP\n");
+            //printf("BEEP\n");
         }
 		soundTimer--;
 }
