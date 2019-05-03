@@ -446,5 +446,9 @@ void chip8::nextCycle(){
 		delayTimer--;
 
 	if(soundTimer > 0)
+        if(soundTimer == 1){
+            playSound = true;
+            printf("BEEP\n");
+        }
 		soundTimer--;
 }

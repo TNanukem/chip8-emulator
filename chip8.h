@@ -30,6 +30,7 @@ class chip8{
 	uint8_t  keyboard[16];		// The keyboard has 16 keys
 
 	bool drawFlag = false;				// Flag to determine if we should draw on the screen or not.
+	bool playSound = false;				// Flag to determine if the sound should be played.
 
 	void nextCycle();
 	void initialize();

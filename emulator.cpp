@@ -31,6 +31,11 @@ chip8 emulator::loadGame(uint8_t SaveStateSlot, chip8 *Chip8, std::string game){
 	return aux;
 }
 
+void playSound(SDL_AudioDeviceID deviceId, uint8_t *wavBuffer, uint32_t wavLength){
+	int success = SDL_QueueAudio(deviceId, wavBuffer, wavLength);
+	SDL_PauseAudioDevice(deviceId, 0);
+}
+
 void emulator::emulate(int argc, char** argv){
     chip8 Chip8;
 	display Display;
@@ -47,6 +52,18 @@ void emulator::emulate(int argc, char** argv){
 
 	// Graphical System Initialization
 	Display.displayInit();
+
+	// Loading the audio file
+	SDL_AudioSpec wavSpec;
+	uint32_t wavLength;
+	uint8_t *wavBuffer;
+
+	SDL_LoadWAV("music/sound.wav", &wavSpec, &wavBuffer, &wavLength);
+
+	// Opening the audio device
+	SDL_AudioDeviceID deviceId = SDL_OpenAudioDevice(NULL, 0, &wavSpec, NULL, 0);
+
+	//playSound(deviceId, wavBuffer, wavLength);
 
 	while(1){			// Emulation loop
 
@@ -158,11 +175,18 @@ void emulator::emulate(int argc, char** argv){
 
 			Chip8.drawFlag = false;
 			Display.displayDraw(Chip8.display);
+
+			if(Chip8.playSound)
+				playSound(deviceId, wavBuffer, wavLength);
+				Chip8.playSound = false;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
 
 	// Free every SDL structure allocated
 	Display.displayDestroy();
+
+	SDL_CloseAudioDevice(deviceId);
+	SDL_FreeWAV(wavBuffer);
 }
