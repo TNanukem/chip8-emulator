@@ -13,17 +13,32 @@ It also features 16 1-Byte registers, named V0 to VF and a 2-Byte special regist
 ### Input
 The Chip8 features a hex keyboard as shown below.
 
-|1|2|3|C|   
-|4|5|6|D|   
-|7|8|9|E|  
-|A|0|B|F|  
+|   	|   	|  |  |
+|---	|---	|---	|	---	|
+|   1	|  2 	| 3 | C |
+|   4	|  5 	| 6 | D |
+|   7 |  8 	| 9 | E |
+|   A	|  0 	| B | F |
 
 ## The Emulator
 This emulator is a work in progress. Below you can see the next steps into the development.
 
+By 05.05.2019 the first release was made to allow me to focus on other projects. In the future new updates will be made to this project.
+
+### Commands
+The following keys have some behavior in the emulator that you can use while playing.
+
+|   Key	| Behavior | 
+|---	|---	|	
+|   Space	|  Pause Emulator 	|
+|   F1	|  Save State 	|   	|
+|   F2	|   Change State Slot	|
+|   F3	|   Load State	|  
+
 ### Next Steps
 1. Correct sound system.
-3. Create an UI for ROM selection and other options.
+2. Create an UI for ROM selection and other options.
+3. Change the architecture to be completely object oriented. 
 ### Completed
 1. Basic hardware structure.
 2. Emulation loop.
@@ -35,6 +50,15 @@ This emulator is a work in progress. Below you can see the next steps into the d
 8. Create .gitignore and Makefile.
 9. Correct ROM file name handling for input and save/load state.
 10. FPS Counter.
+
+## About the project
+This was my first approach in emulator development and I'm really proud of how it turned out. However, there are sensbile modifcations that can be made in order to improve the project as a whole.
+
+The use of SDL may not have been the best choice, since it doesn't allow, natively, for the development of the UI, so, in order to make it will be necessary to use another library and try to integrate both of them. In my next emulations projects I probably would look foward to using another tool.
+
+Also, the timing of this emulator is poorly implemented. The sound has bugs because the timers doesn't reduce at the expected frequency of 60 Hz, also, the emulator can't maintain a stable frame rate. For my next projects, with more complex systems, this will be a major worry.
+
+Finally, some aspects about the architecture used still worry me. I didn't really used a well object-oriented structure because of my C development backgound. This is another major focus that should be addressed on future projects.
 
 ## Resources
 These are the resources i've been using to build this project:
