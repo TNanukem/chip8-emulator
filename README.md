@@ -1,4 +1,7 @@
-# chip8-emulator
+# CHIP8 Emulator
+
+![alt text](https://github.com/TNanukem/chip8-emulator/blob/master/images/space.png)
+
 In my journey to learn more about emulation, this project showed itself as the "Hello World" of the topic. This is an CHIP-8 emulator built in C++.
 
 ## About the Chip8
@@ -35,6 +38,16 @@ The following keys have some behavior in the emulator that you can use while pla
 |   F2	|   Change State Slot	|
 |   F3	|   Load State	|  
 
+### Running a game
+```
+./chip8 GAMENAME
+```
+Examples:
+```
+./chip8 INVADERS
+./chip8 PONG
+```
+
 ### Next Steps
 1. Correct sound system.
 2. Create an UI for ROM selection and other options.
@@ -59,6 +72,10 @@ The use of SDL may not have been the best choice, since it doesn't allow, native
 Also, the timing of this emulator is poorly implemented. The sound has bugs because the timers doesn't reduce at the expected frequency of 60 Hz, also, the emulator can't maintain a stable frame rate. For my next projects, with more complex systems, this will be a major worry.
 
 Finally, some aspects about the architecture used still worry me. I didn't really used a well object-oriented structure because of my C development backgound. This is another major focus that should be addressed on future projects.
+
+## Gallery
+![alt text](https://github.com/TNanukem/chip8-emulator/blob/master/images/IBM.png)
+![alt text](https://github.com/TNanukem/chip8-emulator/blob/master/images/pong.png)
 
 ## Resources
 These are the resources i've been using to build this project:
