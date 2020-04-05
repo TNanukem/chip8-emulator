@@ -67,7 +67,7 @@ Examples:
 ## About the project
 This was my first approach in emulator development and I'm really proud of how it turned out. However, there are sensbile modifcations that can be made in order to improve the project as a whole.
 
-The use of SDL may not have been the best choice, since it doesn't allow, natively, for the development of the UI, so, in order to make it will be necessary to use another library and try to integrate both of them. In my next emulations projects I probably would look foward to using another tool.
+The use of SDL may not have been the best choice, since it doesn't allow, natively, for the development of the UI, so, in order to make it will be necessary to use another library and try to integrate both of them. In my next emulations projects I probably would look forward to using another tool.
 
 Also, the timing of this emulator is poorly implemented. The sound has bugs because the timers doesn't reduce at the expected frequency of 60 Hz, also, the emulator can't maintain a stable frame rate. For my next projects, with more complex systems, this will be a major worry.
 
